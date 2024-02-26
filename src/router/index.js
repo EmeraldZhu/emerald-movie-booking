@@ -3,8 +3,16 @@ import EventList from '../views/EventList.vue';
 import AdminPanel from '../views/AdminPanel.vue';
 
 const routes = [
-  { path: '/', component: EventList },
-  { path: '/admin', component: AdminPanel },
+  { 
+    path: '/',
+    name: 'EventList',
+    component: EventList 
+  },
+  { 
+    path: '/admin',
+    name: 'AdminPanel',
+    component: AdminPanel 
+  },
   // ... add other routes here
 ];
 
