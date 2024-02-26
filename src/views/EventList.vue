@@ -45,37 +45,33 @@
         </v-col>
       </v-row>
     </v-container>
-  </template>
+</template>
   
-  <script>
-  export default {
+<script>
+import { getPopularMovies } from '../apiService';
+
+export default {
     name: 'EventList',
     data() {
       return {
         search: '',
-        movies: [
-          {
-            id: 1,
-            title: 'Interstellar',
-            genre: 'Sci-Fi',
-            rating: 8.6,
-            poster: 'https://image.tmdb.org/t/p/w500/placeholder-poster1.jpg',
-          },
-          {
-            id: 2,
-            title: 'Inception',
-            genre: 'Action/Sci-Fi',
-            rating: 8.8,
-            poster: 'https://image.tmdb.org/t/p/w500/placeholder-poster2.jpg',
-          },
-          // ... Add more mock data here
-        ],
+        movies: []
       };
     },
-  };
-  </script>
+    async created() {
+        try {
+            this.movies = await getPopularMovies();
+        } catch (error) {
+            // Handle error
+        }
+    },
+    methods: {
+        // define methods, e.g., refreshing movie list, searching
+    }
+};
+</script>
   
-  <style>
+<style>
   .v-card {
     transition: transform 0.2s;
     cursor: pointer;
@@ -111,5 +107,5 @@
   .v-card-subtitle {
     margin-top: -4px !important;
   }
-  </style>
+</style>
   
