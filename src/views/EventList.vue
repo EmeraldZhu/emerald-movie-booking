@@ -5,7 +5,7 @@
         <v-spacer></v-spacer>
         <v-btn icon>
           <v-avatar>
-            <img src="path-to-profile-image.jpg" alt="Profile">
+            <img src="" alt="Profile"> 
           </v-avatar>
         </v-btn>
       </v-app-bar>
