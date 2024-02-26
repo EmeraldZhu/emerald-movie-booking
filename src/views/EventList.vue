@@ -1,49 +1,51 @@
 <template>
-    <v-container class="pa-0 fill-height" fluid>
-      <v-app-bar color="deep-purple accent-4" dense dark>
-        <v-app-bar-title>Hello, User!</v-app-bar-title>
+    <v-container fluid>
+      <v-app-bar color="indigo darken-4" dark>
+        <v-toolbar-title>Hello, Afshin!</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon>
-          <v-icon>mdi-account-circle</v-icon>
+          <v-avatar>
+            <img src="path-to-profile-image.jpg" alt="Profile">
+          </v-avatar>
         </v-btn>
       </v-app-bar>
   
       <v-text-field
         v-model="search"
-        append-icon="mdi-microphone"
-        label="Search"
-        single-line
+        append-icon="mdi-magnify"
+        placeholder="Search"
+        dense
+        flat
+        solo-inverted
         hide-details
-        outlined
-        class="mx-4"
+        class="my-2 mx-4"
       ></v-text-field>
   
-      <v-row>
+      <v-row dense>
         <v-col
           v-for="movie in movies"
-          :key="movie.title"
+          :key="movie.id"
           cols="12"
           sm="6"
           md="4"
-          lg="3"
         >
-          <v-card class="mx-auto" max-width="344">
-            <v-img :src="movie.image" height="194"></v-img>
-            <v-card-title>{{ movie.title }}</v-card-title>
-            <v-card-subtitle>{{ movie.subtitle }}</v-card-subtitle>
-            <v-card-text>{{ movie.description }}</v-card-text>
+          <v-card color="grey darken-4" dark>
+            <v-img :src="movie.poster" class="white--text align-end" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" height="200px">
+              <v-card-title>{{ movie.title }}</v-card-title>
+            </v-img>
+            <v-card-subtitle class="pb-0">{{ movie.genre }}</v-card-subtitle>
+            <v-card-text class="text--primary">
+              <v-icon small class="mr-1">mdi-star</v-icon>
+              {{ movie.rating }}
+            </v-card-text>
             <v-card-actions>
-              <v-btn text color="deep-purple accent-4">Learn More</v-btn>
-              <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon color="pink">mdi-heart</v-icon>
-              </v-btn>
+              <v-btn text color="blue lighten-2">Details</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-</template>
+  </template>
   
   <script>
   export default {
@@ -53,12 +55,20 @@
         search: '',
         movies: [
           {
-            title: 'Movie Title 1',
-            subtitle: 'Subtitle 1',
-            description: 'This is a description of the movie.',
-            image: '/path-to-your-image.jpg',
+            id: 1,
+            title: 'Interstellar',
+            genre: 'Sci-Fi',
+            rating: 8.6,
+            poster: 'https://image.tmdb.org/t/p/w500/placeholder-poster1.jpg',
           },
-          // Add more dummy movie objects here
+          {
+            id: 2,
+            title: 'Inception',
+            genre: 'Action/Sci-Fi',
+            rating: 8.8,
+            poster: 'https://image.tmdb.org/t/p/w500/placeholder-poster2.jpg',
+          },
+          // ... Add more mock data here
         ],
       };
     },
@@ -66,6 +76,40 @@
   </script>
   
   <style>
-  /* Add your CSS here */
+  .v-card {
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  
+  .v-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .v-app-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .v-avatar img {
+    border-radius: 50%;
+  }
+  
+  .v-img {
+    transition: opacity 0.5s ease;
+  }
+  
+  .v-img:hover {
+    opacity: 0.85;
+  }
+  
+  .v-card-title {
+    font-size: 1.2rem !important;
+  }
+  
+  .v-card-subtitle {
+    margin-top: -4px !important;
+  }
   </style>
   
