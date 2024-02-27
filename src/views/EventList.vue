@@ -8,7 +8,7 @@
         </div>
         <div class="profile-pic">
           <!-- The profile picture should be placed here -->
-          <img src="path-to-your-profile-pic.jpg" alt="Afshin" />
+          <img src="" alt="Afshin" />
         </div>
       </div>
       <div class="search-bar">
