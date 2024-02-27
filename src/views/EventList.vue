@@ -19,15 +19,17 @@
 
     <main>
       <h2>Feature Movies</h2>
-      <div class="movie-list">
-        <div class="movie-card" v-for="movie in movies" :key="movie.id">
-          <div class="movie-image" :style="{ backgroundImage: 'url(' + movie.poster + ')' }">
-            <div class="movie-rating">{{ movie.rating }}</div>
+      <splide :options="splideOptions">
+        <splide-slide v-for="movie in movies" :key="movie.id">
+          <div class="movie-card">
+            <div class="movie-image" :style="{ backgroundImage: 'url(' + getPosterUrl(movie.poster_path) + ')' }">
+              <div class="movie-rating">{{ movie.vote_average }}</div>
+            </div>
+            <div class="movie-title">{{ movie.title }}</div>
+            <div class="movie-genre">{{ movie.genre_ids.join(', ') }}</div> <!-- Genre IDs need to be mapped to genre names -->
           </div>
-          <div class="movie-title">{{ movie.title }}</div>
-          <div class="movie-genre">{{ movie.genre }}</div>
-        </div>
-      </div>
+        </splide-slide>
+      </splide>
     </main>
 
     <nav class="navigation">
@@ -59,25 +61,49 @@
 </template>
   
 <script>
+import { ref } from 'vue';
+import { Splide, SplideSlide } from '@splidejs/vue-splide';
 import { getPopularMovies } from '../apiService';
 
 export default {
     name: 'EventList',
+    components: {
+      Splide,
+      SplideSlide
+    },
     data() {
       return {
         search: '',
-        movies: []
+        movies: [],
+        splideOptions: {
+        type: 'loop',
+        perPage: 1,
+        perMove: 1,
+        gap: '1rem',
+        pagination: false,
+        arrows: false,
+        drag: 'free',
+        breakpoints: {
+          640: {
+            perPage: 1,
+          },
+        },
+      },
       };
     },
     async created() {
         try {
             this.movies = await getPopularMovies();
         } catch (error) {
+          console.error(error);
             // Handle error
         }
     },
     methods: {
         // define methods, e.g., refreshing movie list, searching
+        getPosterUrl(path) {
+      return `https://image.tmdb.org/t/p/w500${path}`;
+    },
     }
 };
 </script>
@@ -147,16 +173,33 @@ main h2 {
   margin-bottom: 1rem;
 }
 
-.movie-list {
+/* Add Splide overrides if necessary */
+.splide__slide {
   display: flex;
-  overflow-x: scroll;
-  padding: 0 1rem;
+  justify-content: center;
 }
 
 .movie-card {
+  width: 200px; /* Adjust the size of the card */
+  transform: scale(0.8); /* Scaled down size */
+  transition: transform 0.3s;
+}
+
+/* Style for the active slide */
+.splide__slide.is-active .movie-card {
+  transform: scale(1);
+}
+
+/* .movie-list {
+  display: flex;
+  overflow-x: scroll;
+  padding: 0 1rem;
+} */
+
+/* .movie-card {
   min-width: 200px;
   margin-right: 1rem;
-}
+} */
 
 .movie-image {
   height: 300px;
