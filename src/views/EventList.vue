@@ -34,27 +34,23 @@
     <ul class="nav-list">
       <li class="nav-item">
         <a href="#" class="nav-link active">
-          <span class="icon home-icon">🏠</span>
-          <span class="nav-label">Home</span>
+          <font-awesome-icon :icon="['fas', 'home']" />
           <span class="indicator"></span>
         </a>
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          <span class="icon explore-icon">🔍</span>
-          <span class="nav-label">Explore</span>
+          <font-awesome-icon :icon="['fas', 'compass']" />
         </a>
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          <span class="icon tickets-icon">🎟️</span>
-          <span class="nav-label">Tickets</span>
+          <font-awesome-icon :icon="['fas', 'ticket-alt']" />
         </a>
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          <span class="icon profile-icon">👤</span>
-          <span class="nav-label">Profile</span>
+          <font-awesome-icon :icon="['fas', 'user']" />
         </a>
       </li>
     </ul>
