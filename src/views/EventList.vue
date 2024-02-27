@@ -1,50 +1,26 @@
 <template>
-    <v-container fluid>
-      <v-app-bar color="indigo darken-4" dark>
-        <v-toolbar-title>Hello, Afshin!</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-avatar>
-            <img src="" alt="Profile"> 
-          </v-avatar>
-        </v-btn>
-      </v-app-bar>
-  
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        placeholder="Search"
-        dense
-        flat
-        solo-inverted
-        hide-details
-        class="my-2 mx-4"
-      ></v-text-field>
-  
-      <v-row dense>
-        <v-col
-          v-for="movie in movies"
-          :key="movie.id"
-          cols="12"
-          sm="6"
-          md="4"
-        >
-          <v-card color="grey darken-4" dark>
-            <v-img :src="movie.poster" class="white--text align-end" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" height="200px">
-              <v-card-title>{{ movie.title }}</v-card-title>
-            </v-img>
-            <v-card-subtitle class="pb-0">{{ movie.genre }}</v-card-subtitle>
-            <v-card-text class="text--primary">
-              <v-icon small class="mr-1">mdi-star</v-icon>
-              {{ movie.rating }}
-            </v-card-text>
-            <v-card-actions>
-              <v-btn text color="blue lighten-2">Details</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>Hello, Afshin!</h1>
+      <div class="profile-pic">Profile</div>
+    </header>
+
+    <div class="search-bar">
+      <input v-model="search" placeholder="Search" />
+    </div>
+
+    <div class="movies-container">
+      <div class="movie-card" v-for="movie in movies" :key="movie.id">
+        <div class="movie-image" :style="{ backgroundImage: 'url(' + movie.poster + ')' }"></div>
+        <div class="movie-info">
+          <h2>{{ movie.title }}</h2>
+          <p>{{ movie.genre }}</p>
+          <div class="movie-rating"><span>⭐</span>{{ movie.rating }}</div>
+          <button class="details-btn">Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
   
 <script>
@@ -71,41 +47,95 @@ export default {
 };
 </script>
   
-<style>
-  .v-card {
-    transition: transform 0.2s;
-    cursor: pointer;
+<style scoped>
+.app-container {
+  padding: 20px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-pic {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-bar {
+  margin: 20px 0;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.movies-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.movie-card {
+  width: calc(25% - 20px);
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.movie-image {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+}
+
+.movie-info {
+  padding: 10px;
+}
+
+.movie-info h2 {
+  font-size: 20px;
+  margin: 10px 0;
+}
+
+.movie-info p {
+  font-size: 16px;
+  color: #666;
+}
+
+.movie-rating {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.details-btn {
+  padding: 10px 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .movie-card {
+    width: calc(50% - 20px);
   }
-  
-  .v-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 480px) {
+  .movie-card {
+    width: 100%;
   }
-  
-  .v-app-bar {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  
-  .v-avatar img {
-    border-radius: 50%;
-  }
-  
-  .v-img {
-    transition: opacity 0.5s ease;
-  }
-  
-  .v-img:hover {
-    opacity: 0.85;
-  }
-  
-  .v-card-title {
-    font-size: 1.2rem !important;
-  }
-  
-  .v-card-subtitle {
-    margin-top: -4px !important;
-  }
+}
 </style>
-  
