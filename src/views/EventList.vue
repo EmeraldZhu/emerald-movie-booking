@@ -3,12 +3,12 @@
     <header class="app-header">
       <div class="header-content">
         <div class="greeting">
-          <h1>Hello Afshin!</h1>
+          <h1>Hello Emerald!</h1>
           <p>Book your favorite movie</p>
         </div>
         <div class="profile-pic">
           <!-- The profile picture should be placed here -->
-          <img src="" alt="Afshin" />
+          <img src="" alt="Emerald's Profile" />
         </div>
       </div>
       <div class="search-bar">
@@ -19,69 +19,75 @@
 
     <main>
       <h2>Feature Movies</h2>
-      <splide :options="splideOptions">
-        <splide-slide v-for="movie in movies" :key="movie.id">
+      <splide :options="splideOptions" @splide:mounted="setupAnimations" @splide:moved="animateCards">
+        <splide-slide v-for="movie in movies" :key="movie.id" ref="slides">
           <div class="movie-card">
-            <div class="movie-image" :style="{ backgroundImage: 'url(' + getPosterUrl(movie.poster_path) + ')' }">
+            <div
+              class="movie-image"
+              :style="{ backgroundImage: 'url(' + getPosterUrl(movie.poster_path) + ')' }">
               <div class="movie-rating">{{ movie.vote_average }}</div>
             </div>
             <div class="movie-title">{{ movie.title }}</div>
-            <div class="movie-genre">{{ movie.genre_ids.join(', ') }}</div> <!-- Genre IDs need to be mapped to genre names -->
+            <div class="movie-genre">{{ movie.genre_ids.join(', ') }}</div>
           </div>
         </splide-slide>
       </splide>
     </main>
 
     <nav class="navigation">
-    <ul class="nav-list">
-      <li class="nav-item">
-        <a href="#" class="nav-link active">
-          <font-awesome-icon :icon="['fas', 'home']" />
-          <span class="indicator"></span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <font-awesome-icon :icon="['fas', 'compass']" />
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <font-awesome-icon :icon="['fas', 'ticket-alt']" />
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <font-awesome-icon :icon="['fas', 'user']" />
-        </a>
-      </li>
-    </ul>
-  </nav>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link active">
+            <!-- Use appropriate icons -->
+            Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <!-- Use appropriate icons -->
+            Explore
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <!-- Use appropriate icons -->
+            Tickets
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <!-- Use appropriate icons -->
+            Profile
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
-  
+
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Splide, SplideSlide } from '@splidejs/vue-splide';
 import { getPopularMovies } from '../apiService';
+import gsap from 'gsap';
 
 export default {
-    name: 'EventList',
-    components: {
-      Splide,
-      SplideSlide
-    },
-    data() {
-      return {
-        search: '',
-        movies: [],
-        splideOptions: {
+  name: 'MovieList',
+  components: {
+    Splide,
+    SplideSlide,
+  },
+  data() {
+    return {
+      search: '',
+      movies: [],
+      splideOptions: {
         type: 'loop',
-        perPage: 1,
+        perPage: 3,
         perMove: 1,
         gap: '1rem',
         pagination: false,
-        arrows: false,
+        arrows: true,
         drag: 'free',
         breakpoints: {
           640: {
@@ -89,25 +95,51 @@ export default {
           },
         },
       },
-      };
-    },
-    async created() {
-        try {
-            this.movies = await getPopularMovies();
-        } catch (error) {
-          console.error(error);
-            // Handle error
-        }
-    },
-    methods: {
-        // define methods, e.g., refreshing movie list, searching
-        getPosterUrl(path) {
+    };
+  },
+  async created() {
+    try {
+      this.movies = await getPopularMovies();
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  methods: {
+    getPosterUrl(path) {
       return `https://image.tmdb.org/t/p/w500${path}`;
     },
-    }
+    setupAnimations() {
+      this.animateCards(0); // Start with the first slide
+    },
+    animateCards(currentIndex) {
+      const slides = this.$refs.slides;
+      slides.forEach((slide, index) => {
+        const card = slide.querySelector('.movie-card');
+        const isActive = index === currentIndex;
+
+        if (isActive) {
+          gsap.to(card, {
+            scale: 1,
+            opacity: 1,
+            rotateY: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        } else {
+          gsap.to(card, {
+            scale: 0.8,
+            opacity: 0.5,
+            rotateY: '+=10', // Rotate slightly for inactive cards
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+      });
+    },
+  },
 };
 </script>
-  
+
 <style scoped>
 .app-container {
   font-family: 'Arial', sans-serif;
@@ -173,33 +205,14 @@ main h2 {
   margin-bottom: 1rem;
 }
 
-/* Add Splide overrides if necessary */
-.splide__slide {
-  display: flex;
-  justify-content: center;
-}
-
 .movie-card {
-  width: 200px; /* Adjust the size of the card */
-  transform: scale(0.8); /* Scaled down size */
-  transition: transform 0.3s;
+  width: 72vw; /* Adjust based on ITEM_WIDTH logic */
+  transform-origin: center center;
+  transform: scale(0.8);
+  opacity: 0.5;
+  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
-/* Style for the active slide */
-.splide__slide.is-active .movie-card {
-  transform: scale(1);
-}
-
-/* .movie-list {
-  display: flex;
-  overflow-x: scroll;
-  padding: 0 1rem;
-} */
-
-/* .movie-card {
-  min-width: 200px;
-  margin-right: 1rem;
-} */
 
 .movie-image {
   height: 300px;
@@ -213,26 +226,35 @@ main h2 {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  background-color: #FFC107; /* Rating background */
+  background-color: #FFC107; /* Yellow background for visibility */
   border-radius: 3px;
   padding: 2px 4px;
   font-weight: bold;
+  color: black; /* Ensures readability */
 }
 
 .movie-title {
   margin-top: 0.5rem;
+  color: #ffffff;
+  font-size: 18px; /* Larger for readability */
+  font-weight: bold;
+  text-align: center; /* Centers the title below the image */
 }
 
 .movie-genre {
-  font-size: 0.8rem;
-  opacity: 0.8;
+  font-size: 14px; /* Slightly smaller than the title for hierarchy */
+  color: #ffffff;
+  opacity: 0.8; /* Slightly muted to differentiate from the title */
+  text-align: center; /* Aligns with the title */
+  margin-top: 5px; /* Spacing from the title */
 }
 
+/* Navigation styling */
 .navigation {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background-color: #2c2c2e; /* Dark background */
+  background-color: #2c2c2e;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
   z-index: 100;
 }
@@ -253,27 +275,7 @@ main h2 {
 
 .nav-link {
   text-decoration: none;
-  color: #ffffff;
+  color: white;
   text-align: center;
 }
-
-.nav-link.active .indicator {
-  content: '';
-  display: block;
-  width: 5px;
-  height: 5px;
-  background-color: #ffffff;
-  border-radius: 50%;
-  margin-top: 5px;
-}
-
-.icon {
-  font-size: 24px; /* Adjust icon size as needed */
-}
-
-.nav-label {
-  display: none; /* Hide labels by default, show if needed */
-}
-
-/* Add responsive adjustments as needed */
 </style>
