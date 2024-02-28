@@ -43,10 +43,10 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick, onMounted } from 'vue';
 import { Splide, SplideSlide } from '@splidejs/vue-splide';
 import gsap from 'gsap';
-import { getPopularMovies } from '../apiService'; // Ensure this service is correctly implemented
+import { getPopularMovies } from '../apiService';
 
 export default {
   name: 'MovieList',
@@ -55,82 +55,82 @@ export default {
     SplideSlide,
   },
   setup() {
+    const movies = ref([]);
     const slidesRefs = ref([]);
+    const splideRef = ref(null);
 
-    function setSlideRef(el) {
-      if (el) slidesRefs.value.push(el);
-    }
-
-    watch(slidesRefs, (newRefs) => {
-      if (newRefs && newRefs.length > 0) {
-        setupAnimations(newRefs);
+    async function loadMovies() {
+      try {
+        const data = await getPopularMovies();
+        movies.value = data;
+        await nextTick(); // Ensure DOM updates are completed
+        splideRef.value.refresh(); // Assuming splideRef is bound to the Splide instance
+      } catch (error) {
+        console.error(error);
       }
-    });
-
-    function setupAnimations(refs) {
-      // Initial animation setup, can assume the first slide is initially active
-      animateCards(refs, 0);
     }
 
-    function animateCards(refs, currentIndex) {
-      refs.forEach((slide, index) => {
-        const card = slide.querySelector('.movie-card');
-        const isActive = index === currentIndex;
-
-        if (isActive) {
-          gsap.to(card, {
-            scale: 1,
-            opacity: 1,
-            rotateY: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-          });
-        } else {
-          gsap.to(card, {
-            scale: 0.8,
-            opacity: 0.5,
-            rotateY: '+=10',
-            duration: 0.5,
-            ease: 'power2.out',
-          });
+    onMounted(async () => {
+      await loadMovies();
+      nextTick(() => {
+        if (splideRef.value) {
+          splideRef.value.refresh();
         }
       });
-    }
+    });
 
-    return { slidesRefs, setSlideRef, animateCards };
+    return { movies, slidesRefs, splideRef };
   },
   data() {
     return {
       search: '',
-      movies: [],
       splideOptions: {
         type: 'loop',
-        perPage: 3,
+        perPage: 1,
         perMove: 1,
         gap: '1rem',
         pagination: false,
         arrows: true,
         drag: 'free',
-        breakpoints: {
-          640: {
-            perPage: 1,
-          },
-        },
+        width: '72vw', // Ensuring card width is 72% of the viewport width
+        padding: { left: '14%', right: '14%' }, // Adjusting for centralization
+        snap: true, // Assuming snap-to functionality is desired
       },
     };
   },
-  async created() {
-    try {
-      this.movies = await getPopularMovies();
-    } catch (error) {
-      console.error(error);
-    }
-  },
   methods: {
+    setSlideRef(el) {
+      if (el) this.slidesRefs.push(el);
+    },
     getPosterUrl(path) {
       return `https://image.tmdb.org/t/p/w500${path}`;
     },
+    handleScroll() {
+    // Assuming you have a way to reference all movie cards, e.g., this.slidesRefs
+    this.slidesRefs.forEach((ref) => {
+      const card = ref.$el; // Direct DOM element reference
+      const scrollPosition = window.scrollY;
+      const cardPosition = card.getBoundingClientRect().top + scrollPosition;
+      const distanceToCenter = Math.abs(window.innerHeight / 2 - (cardPosition + card.offsetHeight / 2));
+
+      // Example calculation for opacity based on distance to center of viewport
+      const opacity = Math.max(0, 1 - distanceToCenter / (window.innerHeight / 2));
+
+      // Apply dynamic styles
+      card.style.opacity = opacity.toString();
+
+      // For rotation, you might want a subtle effect based on proximity to the center
+      const rotation = distanceToCenter / (window.innerHeight / 2) * 10; // Max rotation of 10 degrees
+      card.style.transform = `rotateZ(${rotation}deg)`;
+    });
+  }
   },
+  mounted() {
+  window.addEventListener('scroll', this.handleScroll);
+},
+beforeUnmount() {
+  window.removeEventListener('scroll', this.handleScroll);
+},
 };
 </script>
 
@@ -204,8 +204,25 @@ main h2 {
   transform-origin: center center;
   transform: scale(0.8);
   opacity: 0.5;
-  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.movie-card.active {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); /* Enhanced shadow for active card */
+}
+
+.splide__slide {
+  display: flex;
+  justify-content: center; /* Helps with centering the card */
+}
+
+/* Transition for entering and leaving animations */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 .movie-image {
