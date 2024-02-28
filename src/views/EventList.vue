@@ -3,28 +3,26 @@
     <header class="app-header">
       <div class="header-content">
         <div class="greeting">
-          <h1>Hello Emerald!</h1>
+          <h1>Hello Afshin!</h1>
           <p>Book your favorite movie</p>
         </div>
         <div class="profile-pic">
-          <!-- The profile picture should be placed here -->
-          <img src="" alt="Emerald's Profile" />
+          <!-- Assume there's a profile picture path -->
+          <img src="../assets/profile.JPG" alt="Profile" />
         </div>
       </div>
       <div class="search-bar">
         <input type="text" v-model="search" placeholder="Search" />
-        <i class="search-icon">🔍</i> <!-- Replace with actual icon -->
+        <i class="search-icon">🔍</i>
       </div>
     </header>
 
     <main>
       <h2>Feature Movies</h2>
       <splide :options="splideOptions" @splide:mounted="setupAnimations" @splide:moved="animateCards">
-        <splide-slide v-for="movie in movies" :key="movie.id" ref="slides">
+        <splide-slide v-for="(movie, index) in movies" :key="movie.id" :ref="setSlideRef">
           <div class="movie-card">
-            <div
-              class="movie-image"
-              :style="{ backgroundImage: 'url(' + getPosterUrl(movie.poster_path) + ')' }">
+            <div class="movie-image" :style="{ backgroundImage: 'url(' + getPosterUrl(movie.poster_path) + ')' }">
               <div class="movie-rating">{{ movie.vote_average }}</div>
             </div>
             <div class="movie-title">{{ movie.title }}</div>
@@ -36,30 +34,11 @@
 
     <nav class="navigation">
       <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#" class="nav-link active">
-            <!-- Use appropriate icons -->
-            Home
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <!-- Use appropriate icons -->
-            Explore
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <!-- Use appropriate icons -->
-            Tickets
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <!-- Use appropriate icons -->
-            Profile
-          </a>
-        </li>
+        <!-- Navigation items -->
+        <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
+        <li class="nav-item"><a href="#" class="nav-link">Explore</a></li>
+        <li class="nav-item"><a href="#" class="nav-link">Tickets</a></li>
+        <li class="nav-item"><a href="#" class="nav-link">Profile</a></li>
       </ul>
     </nav>
   </div>
@@ -68,7 +47,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { Splide, SplideSlide } from '@splidejs/vue-splide';
-import { getPopularMovies } from '../apiService';
+import { getPopularMovies } from '../apiService'; // Ensure this service is correctly implemented
 import gsap from 'gsap';
 
 export default {
@@ -76,6 +55,14 @@ export default {
   components: {
     Splide,
     SplideSlide,
+  },
+  setup() {
+    const slidesRefs = ref([]);
+    const setSlideRef = el => {
+      if (el) slidesRefs.value.push(el);
+    };
+
+    return { slidesRefs, setSlideRef };
   },
   data() {
     return {
@@ -98,22 +85,17 @@ export default {
     };
   },
   async created() {
-    try {
-      this.movies = await getPopularMovies();
-    } catch (error) {
-      console.error(error);
-    }
+    this.movies = await getPopularMovies();
   },
   methods: {
     getPosterUrl(path) {
       return `https://image.tmdb.org/t/p/w500${path}`;
     },
     setupAnimations() {
-      this.animateCards(0); // Start with the first slide
+      this.animateCards(0); // Initial animation setup
     },
     animateCards(currentIndex) {
-      const slides = this.$refs.slides;
-      slides.forEach((slide, index) => {
+      this.slidesRefs.value.forEach((slide, index) => {
         const card = slide.querySelector('.movie-card');
         const isActive = index === currentIndex;
 
@@ -129,7 +111,7 @@ export default {
           gsap.to(card, {
             scale: 0.8,
             opacity: 0.5,
-            rotateY: '+=10', // Rotate slightly for inactive cards
+            rotateY: '+=10', // Slight rotation for inactive cards
             duration: 0.5,
             ease: 'power2.out',
           });
