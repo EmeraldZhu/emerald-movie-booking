@@ -7,8 +7,7 @@
           <p>Book your favorite movie</p>
         </div>
         <div class="profile-pic">
-          <!-- Assume there's a profile picture path -->
-          <img src="../assets/profile.JPG" alt="Profile" />
+          <img src="../assets/profile.jpg" alt="Profile" />
         </div>
       </div>
       <div class="search-bar">
@@ -19,7 +18,7 @@
 
     <main>
       <h2>Feature Movies</h2>
-      <splide :options="splideOptions" @splide:mounted="setupAnimations" @splide:moved="animateCards">
+      <splide :options="splideOptions">
         <splide-slide v-for="(movie, index) in movies" :key="movie.id" :ref="setSlideRef">
           <div class="movie-card">
             <div class="movie-image" :style="{ backgroundImage: 'url(' + getPosterUrl(movie.poster_path) + ')' }">
@@ -34,7 +33,6 @@
 
     <nav class="navigation">
       <ul class="nav-list">
-        <!-- Navigation items -->
         <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
         <li class="nav-item"><a href="#" class="nav-link">Explore</a></li>
         <li class="nav-item"><a href="#" class="nav-link">Tickets</a></li>
@@ -45,10 +43,10 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { Splide, SplideSlide } from '@splidejs/vue-splide';
-import { getPopularMovies } from '../apiService'; // Ensure this service is correctly implemented
 import gsap from 'gsap';
+import { getPopularMovies } from '../apiService'; // Ensure this service is correctly implemented
 
 export default {
   name: 'MovieList',
@@ -58,11 +56,48 @@ export default {
   },
   setup() {
     const slidesRefs = ref([]);
-    const setSlideRef = el => {
-      if (el) slidesRefs.value.push(el);
-    };
 
-    return { slidesRefs, setSlideRef };
+    function setSlideRef(el) {
+      if (el) slidesRefs.value.push(el);
+    }
+
+    watch(slidesRefs, (newRefs) => {
+      if (newRefs && newRefs.length > 0) {
+        setupAnimations(newRefs);
+      }
+    });
+
+    function setupAnimations(refs) {
+      // Initial animation setup, can assume the first slide is initially active
+      animateCards(refs, 0);
+    }
+
+    function animateCards(refs, currentIndex) {
+      refs.forEach((slide, index) => {
+        const card = slide.querySelector('.movie-card');
+        const isActive = index === currentIndex;
+
+        if (isActive) {
+          gsap.to(card, {
+            scale: 1,
+            opacity: 1,
+            rotateY: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        } else {
+          gsap.to(card, {
+            scale: 0.8,
+            opacity: 0.5,
+            rotateY: '+=10',
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+      });
+    }
+
+    return { slidesRefs, setSlideRef, animateCards };
   },
   data() {
     return {
@@ -85,38 +120,15 @@ export default {
     };
   },
   async created() {
-    this.movies = await getPopularMovies();
+    try {
+      this.movies = await getPopularMovies();
+    } catch (error) {
+      console.error(error);
+    }
   },
   methods: {
     getPosterUrl(path) {
       return `https://image.tmdb.org/t/p/w500${path}`;
-    },
-    setupAnimations() {
-      this.animateCards(0); // Initial animation setup
-    },
-    animateCards(currentIndex) {
-      this.slidesRefs.value.forEach((slide, index) => {
-        const card = slide.querySelector('.movie-card');
-        const isActive = index === currentIndex;
-
-        if (isActive) {
-          gsap.to(card, {
-            scale: 1,
-            opacity: 1,
-            rotateY: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-          });
-        } else {
-          gsap.to(card, {
-            scale: 0.8,
-            opacity: 0.5,
-            rotateY: '+=10', // Slight rotation for inactive cards
-            duration: 0.5,
-            ease: 'power2.out',
-          });
-        }
-      });
     },
   },
 };
